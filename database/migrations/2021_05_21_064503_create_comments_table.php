@@ -4,19 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCommnentsTable extends Migration
-{
+class CreateCommentsTable extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
-    {
-        Schema::create('commnents', function (Blueprint $table) {
+    public function up() {
+        Schema::create('Comments', function (Blueprint $table) {
             $table->id();
             $table->string('content');
-            $table->foreignId('news_id')->constrained();
+            $table->foreignId('post_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->timestamps();
         });
@@ -27,8 +25,7 @@ class CreateCommnentsTable extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-        Schema::dropIfExists('commnents');
+    public function down() {
+        Schema::dropIfExists('Comments');
     }
 }
