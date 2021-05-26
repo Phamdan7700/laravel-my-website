@@ -22,7 +22,16 @@ class PostFactory extends Factory
     public function definition()
     {
         return [
-            //
+        'title' => $this->faker->text(),
+        'slug' => $this->faker->slug(),
+        'summary' => $this->faker->text(),
+        'thumbnail' => $this->faker->imageUrl(),
+        'content' => $this->faker->text(),
+        'view' => $this->faker->numberBetween(),
+        'hightlight' => $this->faker->boolean(),
+        'status' => $this->faker->boolean(),
+        'type_id' => $this->faker->numberBetween(1, 10),
+        'user_id' => $this->faker->numberBetween(1, 10),
         ];
     }
 }
