@@ -17,9 +17,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+Route::get('/', function () {
+    return view('welcome');
+});
 
 // Route::prefix('admin')->group(function () {
 //     Route::middleware(['auth'])->group(function () {
@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Route;
 //     });
 // });
 Route::prefix('admin')->group(function () {
-    Route::resource('/', UserController::class);
+    Route::resource('/', UserController::class)->middleware('checkAge');
     Route::resource('category', CategoryController::class);
     Route::resource('type', TypeController::class);
     Route::resource('post', PostController::class);
