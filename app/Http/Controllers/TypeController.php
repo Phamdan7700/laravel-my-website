@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Type;
 use Illuminate\Http\Request;
 
 class TypeController extends Controller
@@ -13,7 +14,8 @@ class TypeController extends Controller
      */
     public function index()
     {
-        //
+        $items = Type::all();
+        return $items;
     }
 
     /**
@@ -45,7 +47,8 @@ class TypeController extends Controller
      */
     public function show($id)
     {
-        //
+        $items = Type::find($id);   
+        return $items;
     }
 
     /**
