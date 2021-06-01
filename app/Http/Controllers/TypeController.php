@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Type;
+use App\Models\Type as MainModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class TypeController extends Controller
 {
@@ -12,10 +13,38 @@ class TypeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+
+
+    protected $viewName = 'type';
+    protected $viewAdmin;
+    protected $viewAdminForm;
+    protected $viewPage;
+
+    public function __construct()
     {
-        $items = Type::all();
-        return $items;
+        $this->viewAdmin = 'admin.' . $this->viewName;
+        $this->viewAdminForm = 'admin.' . $this->viewName . '-form';
+        $this->viewPage = 'page' . $this->viewName;
+    }
+
+    public function index(Request $request)
+    {
+        $filter = $request->filter_status;
+        $viewName = $this->viewName;
+        $items = MainModel::all();
+        $countAll = count($items);
+        $countActive = count($items->where('status', '1'));
+        $countInActive = count($items->where('status', '0'));
+        if ($filter == 'active') {
+            $items = $items->where('status', '1');
+        }
+        if ($filter == 'inactive') {
+            $items = $items->where('status', '0');
+        }
+        return view(
+            $this->viewAdmin,
+            compact(['items', 'viewName', 'countAll', 'countActive', 'countInActive'])
+        );
     }
 
     /**
@@ -25,7 +54,7 @@ class TypeController extends Controller
      */
     public function create()
     {
-        //
+        return view($this->viewAdminForm);
     }
 
     /**
@@ -36,7 +65,19 @@ class TypeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|min:5|max:255',
+            'status' => 'required',
+        ]);
+
+        $items = MainModel::create([
+            'name' => $request->name,
+            'slug' => Str::of($request->name)->slug('-'),
+            'order' => '1',
+            'status' => $request->status,
+        ]);
+        $items->save();
+        return back()->with('success', 'Thêm thành công !!!');
     }
 
     /**
@@ -47,8 +88,8 @@ class TypeController extends Controller
      */
     public function show($id)
     {
-        $items = Type::find($id);   
-        return $items;
+        $items = MainModel::findOrFail($id);
+        return view('index', compact('items'));
     }
 
     /**
@@ -59,7 +100,8 @@ class TypeController extends Controller
      */
     public function edit($id)
     {
-        //
+        $item = MainModel::findOrFail($id);
+        return view($this->viewAdminForm, compact('item'));
     }
 
     /**
@@ -71,7 +113,15 @@ class TypeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|min:5|max:255',
+            'status' => 'required',
+        ]);
+        $item = MainModel::findOrFail($id);
+        $item->name = $request->name;
+        $item->status = $request->status;
+        $item->save();
+        return redirect()->route('admin.type.index')->with('success', 'Update succesfully!');
     }
 
     /**
@@ -82,6 +132,12 @@ class TypeController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $item = MainModel::find($id);
+        try {
+            $item->delete();
+        } catch (\Throwable $error) {
+            return back()->with('error', "Lỗi ! Không thể xóa");
+        }
+        return back()->with('success', 'Delete Succesfully');
     }
 }

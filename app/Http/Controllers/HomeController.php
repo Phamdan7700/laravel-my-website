@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
+    protected $viewName = 'post';
+    protected $viewAdminPath;
+
+    public function __construct()
+    {
+        $this->viewAdminPath = config('admin.view_path_admin');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +22,10 @@ class HomeController extends Controller
     public function index()
     {
         $items = Post::all();
-        return $items; 
+        return view($this->viewAdminPath . $this->viewName, [
+            'items' => $items,
+            'viewName' => $this->viewName,
+        ]);
     }
 
     /**

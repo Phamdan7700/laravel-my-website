@@ -23,6 +23,8 @@ class CreatePostsTable extends Migration
             $table->string('view');
             $table->string('hightlight');
             $table->string('status');
+            $table->foreignId('create_by')->constrained('users');
+            $table->foreignId('updated_by')->constrained('users');
             $table->foreignId('type_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->timestamps();

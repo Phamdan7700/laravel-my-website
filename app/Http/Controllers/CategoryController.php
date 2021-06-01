@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Models\Category as MainModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -12,10 +13,43 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+
+
+    protected $viewName = 'category';
+    protected $viewAdmin;
+    protected $viewAdminForm;
+    protected $viewPage;
+
+    public function __construct()
     {
-        $items = Category::all();
-        return $items;
+        $this->viewAdmin = 'admin.' . $this->viewName;
+        $this->viewAdminForm = 'admin.' . $this->viewName . '-form';
+        $this->viewPage = 'page' . $this->viewName;
+    }
+
+    public function index(Request $request)
+    {
+        $filter = $request->filter_status;
+        $viewName = $this->viewName;
+        $items = (new MainModel)->all();
+        $countAll = count($items);
+        $countActive = count($items->where('status', '1'));
+        $countInActive = count($items->where('status', '0'));
+        echo $items;
+        $create_by = $items->createdBy;
+        $updated_by = $items->updatedBy;
+        if ($filter == 'active') {
+            $items = $items->where('status', '1');
+        }
+
+        if ($filter == 'inactive') {
+            $items = $items->where('status', '0');
+        }
+
+        return view(
+            $this->viewAdmin,
+            compact(['items', 'viewName', 'countAll', 'countActive', 'countInActive'])
+        );
     }
 
     /**
@@ -25,7 +59,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view($this->viewAdminForm);
     }
 
     /**
@@ -36,7 +70,19 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|min:5|max:255',
+            'status' => 'required',
+        ]);
+
+        $items = MainModel::create([
+            'name' => $request->name,
+            'slug' => Str::of($request->name)->slug('-'),
+            'order' => '1',
+            'status' => $request->status,
+        ]);
+        $items->save();
+        return back()->with('success', 'Thêm thành công !!!');
     }
 
     /**
@@ -47,8 +93,8 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $items = Category::find($id);
-        return $items;
+        $items = MainModel::findOrFail($id);
+        return view('index', compact('items'));
     }
 
     /**
@@ -59,7 +105,8 @@ class CategoryController extends Controller
      */
     public function edit($id)
     {
-        //
+        $item = MainModel::findOrFail($id);
+        return view($this->viewAdminForm, compact('item'));
     }
 
     /**
@@ -71,7 +118,15 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|min:5|max:255',
+            'status' => 'required',
+        ]);
+        $item = MainModel::findOrFail($id);
+        $item->name = $request->name;
+        $item->status = $request->status;
+        $item->save();
+        return redirect()->route('admin.category.index')->with('success', 'Update succesfully!');
     }
 
     /**
@@ -82,6 +137,12 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $item = MainModel::find($id);
+        try {
+            $item->delete();
+        } catch (\Throwable $error) {
+            return back()->with('error', "Lỗi ! Không thể xóa");
+        }
+        return back()->with('success', 'Delete Succesfully');
     }
 }

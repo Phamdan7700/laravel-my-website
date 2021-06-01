@@ -26,6 +26,8 @@ class CategoryFactory extends Factory
             'slug' => $this->faker->slug(),
             'order' => $this->faker-> numberBetween(1, 10),
             'status' => $this->faker->boolean(),
+            'create_by' =>$this->faker->numberBetween(1, 10),
+            'updated_by' =>$this->faker->numberBetween(1, 10),
         ];
     }
 }

@@ -1,4 +1,3 @@
-<div class="top_nav">
   <div class="nav_menu">
       <nav>
           <div class="nav toggle">
@@ -8,19 +7,40 @@
               <li class="">
                   <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown"
                       aria-expanded="false">
-                      <img src="{{ asset('pageadmin/img/img.jpg') }}" alt="">John Doe
+                      <img src="{{ Auth::user()->avatar }}" alt="">{{ Auth::user()->name }}
                       <span class=" fa fa-angle-down"></span>
                   </a>
                   <ul class="dropdown-menu dropdown-usermenu pull-right">
                       <li><a href="javascript:;"> Profile</a></li>
                       <li>
                           <a href="javascript:;">
-                              <span class="badge bg-red pull-right">50%</span>
                               <span>Settings</span>
                           </a>
                       </li>
                       <li><a href="javascript:;">Help</a></li>
-                      <li><a href="login.html"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
+                      <li>
+                          <!-- Authentication -->
+                          <form method="POST" action="{{ route('logout') }}">
+                              @csrf
+                              <a href="{{ route('logout') }}" class="logout" onclick="event.preventDefault();
+                                  this.closest('form').submit();">
+                                  <i class="fa fa-sign-out pull-right"></i>{{ __('Log Out') }}
+                              </a>
+                          </form>
+                          <style>
+                              .logout {
+                                  display: block;
+                              }
+
+                              .logout:hover {
+                                  color: #262626;
+                                  text-decoration: none;
+                                  background-color: #f5f5f5;
+                              }
+
+                          </style>
+                      </li>
+
                   </ul>
               </li>
               <li role="presentation" class="dropdown">
@@ -95,4 +115,3 @@
           </ul>
       </nav>
   </div>
-</div>

@@ -14,9 +14,22 @@ class Category extends Model
         'slug',
         'order',
         'status',
+        'create_by',
+        'updated_by',
     ];
 
-    public function typeNews() {
+    public function typeNews()
+    {
         return $this->hasMany(Type::class);
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class);
     }
 }

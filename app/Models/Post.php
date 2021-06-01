@@ -18,6 +18,8 @@ class Post extends Model
         'view',
         'hightlight',
         'status',
+        'create_by',
+        'updated_by',
         'type_id',
         'user_id',
     ];
@@ -28,5 +30,13 @@ class Post extends Model
 
     public function comments() {
         return $this->hasMany(Comment::class);
+    }
+
+    public function createdBy() {
+        return $this->belongsTo(User::class);
+    }
+
+    public function updatedBy() {
+        return $this->belongsTo(User::class);
     }
 }
