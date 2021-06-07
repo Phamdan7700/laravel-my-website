@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreRequest;
+use App\Http\Requests\TypeRequest;
+use App\Models\Category;
+use App\Models\Post;
 use App\Models\Type as MainModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class TypeController extends Controller
@@ -14,32 +19,33 @@ class TypeController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-
     protected $viewName = 'type';
     protected $viewAdmin;
     protected $viewAdminForm;
     protected $viewPage;
+    protected $numPageAdmin;
 
     public function __construct()
     {
         $this->viewAdmin = 'admin.' . $this->viewName;
         $this->viewAdminForm = 'admin.' . $this->viewName . '-form';
         $this->viewPage = 'page' . $this->viewName;
+        $this->numPageAdmin = config('admin.num_page_admin');
     }
 
     public function index(Request $request)
     {
         $filter = $request->filter_status;
         $viewName = $this->viewName;
-        $items = MainModel::all();
+        $items = MainModel::paginate($this->numPageAdmin);
         $countAll = count($items);
         $countActive = count($items->where('status', '1'));
         $countInActive = count($items->where('status', '0'));
         if ($filter == 'active') {
-            $items = $items->where('status', '1');
+            $items = MainModel::whereIn('status', '1')->paginate($this->numPageAdmin);
         }
         if ($filter == 'inactive') {
-            $items = $items->where('status', '0');
+            $items = MainModel::whereIn('status', '0')->paginate($this->numPageAdmin);
         }
         return view(
             $this->viewAdmin,
@@ -54,7 +60,8 @@ class TypeController extends Controller
      */
     public function create()
     {
-        return view($this->viewAdminForm);
+        $categories = Category::all();
+        return view($this->viewAdminForm, compact('categories'));
     }
 
     /**
@@ -63,18 +70,15 @@ class TypeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(TypeRequest $request)
     {
-        $request->validate([
-            'name' => 'required|min:5|max:255',
-            'status' => 'required',
-        ]);
-
         $items = MainModel::create([
             'name' => $request->name,
             'slug' => Str::of($request->name)->slug('-'),
             'order' => '1',
             'status' => $request->status,
+            'category_id' => $request->category,
+            'created_by' =>  Auth::user()->id,
         ]);
         $items->save();
         return back()->with('success', 'Thêm thành công !!!');
@@ -88,8 +92,9 @@ class TypeController extends Controller
      */
     public function show($id)
     {
-        $items = MainModel::findOrFail($id);
-        return view('index', compact('items'));
+        $type = MainModel::findOrFail($id);
+        $posts = Post::where('type_id', $id)->paginate(5);
+        return view('page.type', compact('posts'));
     }
 
     /**
@@ -100,8 +105,9 @@ class TypeController extends Controller
      */
     public function edit($id)
     {
+        $categories = Category::all();
         $item = MainModel::findOrFail($id);
-        return view($this->viewAdminForm, compact('item'));
+        return view($this->viewAdminForm, compact('item', 'categories'));
     }
 
     /**
@@ -111,7 +117,7 @@ class TypeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(TypeRequest $request, $id)
     {
         $request->validate([
             'name' => 'required|min:5|max:255',
@@ -119,7 +125,10 @@ class TypeController extends Controller
         ]);
         $item = MainModel::findOrFail($id);
         $item->name = $request->name;
+        $item->slug = Str::of($request->name)->slug('-');
         $item->status = $request->status;
+        $item->category_id = $request->category;
+        $item->updated_by =  Auth::user()->id;
         $item->save();
         return redirect()->route('admin.type.index')->with('success', 'Update succesfully!');
     }
@@ -139,5 +148,28 @@ class TypeController extends Controller
             return back()->with('error', "Lỗi ! Không thể xóa");
         }
         return back()->with('success', 'Delete Succesfully');
+    }
+
+    public function changeStatus(Request $request, $id)
+    {
+        $item = MainModel::findOrFail($id);
+        $result = 0;
+        $status = $item->status;
+        if ($status == 1) {
+            $item->status = 0;
+            $result = 0;
+        } else {
+            $item->status = 1;
+            $result = 1;
+        }
+        $item->save();
+        return $result;
+    }
+
+    public function getTypeofCategory($id)
+    {
+        $items = MainModel::where('category_id', $id)->get();
+        
+        return $items;
     }
 }

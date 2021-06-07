@@ -4,10 +4,14 @@
     Tạo mới thể loại
 @endsection
 
+@php
+$view = 'category';
+@endphp
+
 @section('form')
 
     <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left"
-        action="{{ isset($item) ? route('admin.category.update', $item->id) : route('admin.category.store') }}"
+        action="{{ isset($item) ? route('admin.'.$view.'.update', $item->id) : route('admin.'.$view.'.store') }}"
         method="POST">
         @isset($item)
             @method('PUT')
@@ -36,12 +40,9 @@
         <div class="ln_solid"></div>
         <div class="form-group">
             <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                <a href="{{ route('admin.category.index') }}" class="btn btn-danger" type="button">Quay về</a>
+                <a href="{{ route('admin.'.$view.'.index') }}" class="btn btn-danger" type="button">Quay về</a>
                 <button type="submit" class="btn btn-success">Lưu</button>
             </div>
         </div>
     </form>
-
-
-
 @endsection

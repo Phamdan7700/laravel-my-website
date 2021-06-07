@@ -19,19 +19,21 @@ class UserController extends Controller
     protected $viewAdmin;
     protected $viewAdminForm;
     protected $viewPage;
+    protected $numPageAdmin ;
 
     public function __construct()
     {
         $this->viewAdmin = 'admin.' . $this->viewName;
         $this->viewAdminForm = 'admin.' . $this->viewName . '-form';
         $this->viewPage = 'page' . $this->viewName;
+        $this->numPageAdmin = config('admin.num_page_admin');
     }
 
     public function index(Request $request)
     {
         $filter = $request->filter_status;
         $viewName = $this->viewName;
-        $items = MainModel::all();
+        $items = MainModel::paginate($this->numPageAdmin);
         $countAll = count($items);
         $countActive = count($items->where('status', '1'));
         $countInActive = count($items->where('status', '0'));
@@ -135,5 +137,21 @@ class UserController extends Controller
             return back()->with('error', "Lỗi ! Không thể xóa");
         }
         return back()->with('success', 'Delete Succesfully');
+    }
+
+    public function changeStatus(Request $request, $id)
+    {
+        $item = MainModel::findOrFail($id);
+        $result = 0;
+        $status = $item->status;
+        if ($status == 1) {
+            $item->status = 0;
+            $result = 0;
+        } else {
+            $item->status = 1;
+            $result = 1;
+        }
+        $item->save();
+        return $result;
     }
 }

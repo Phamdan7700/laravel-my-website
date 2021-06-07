@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CategoryRequest;
+use App\Http\Requests\StoreRequest;
 use App\Models\Category as MainModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
@@ -19,33 +22,30 @@ class CategoryController extends Controller
     protected $viewAdmin;
     protected $viewAdminForm;
     protected $viewPage;
+    protected $numPageAdmin ;
 
     public function __construct()
     {
         $this->viewAdmin = 'admin.' . $this->viewName;
         $this->viewAdminForm = 'admin.' . $this->viewName . '-form';
         $this->viewPage = 'page' . $this->viewName;
+        $this->numPageAdmin = config('admin.num_page_admin');
     }
 
     public function index(Request $request)
     {
         $filter = $request->filter_status;
         $viewName = $this->viewName;
-        $items = (new MainModel)->all();
+        $items = MainModel::paginate($this->numPageAdmin);
         $countAll = count($items);
         $countActive = count($items->where('status', '1'));
         $countInActive = count($items->where('status', '0'));
-        echo $items;
-        $create_by = $items->createdBy;
-        $updated_by = $items->updatedBy;
         if ($filter == 'active') {
-            $items = $items->where('status', '1');
+            $items = MainModel::whereIn('status', '1')->paginate(10);
         }
-
         if ($filter == 'inactive') {
-            $items = $items->where('status', '0');
+            $items = MainModel::whereIn('status', '0')->paginate(10);
         }
-
         return view(
             $this->viewAdmin,
             compact(['items', 'viewName', 'countAll', 'countActive', 'countInActive'])
@@ -68,18 +68,15 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        $request->validate([
-            'name' => 'required|min:5|max:255',
-            'status' => 'required',
-        ]);
-
+      
         $items = MainModel::create([
             'name' => $request->name,
             'slug' => Str::of($request->name)->slug('-'),
             'order' => '1',
             'status' => $request->status,
+            'created_by' =>  Auth::user()->id,
         ]);
         $items->save();
         return back()->with('success', 'Thêm thành công !!!');
@@ -116,15 +113,13 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(CategoryRequest $request, $id)
     {
-        $request->validate([
-            'name' => 'required|min:5|max:255',
-            'status' => 'required',
-        ]);
         $item = MainModel::findOrFail($id);
         $item->name = $request->name;
+        $item->slug = Str::of($request->name)->slug('-');
         $item->status = $request->status;
+        $item->updated_by =  Auth::user()->id;
         $item->save();
         return redirect()->route('admin.category.index')->with('success', 'Update succesfully!');
     }
@@ -144,5 +139,21 @@ class CategoryController extends Controller
             return back()->with('error', "Lỗi ! Không thể xóa");
         }
         return back()->with('success', 'Delete Succesfully');
+    }
+
+    public function changeStatus(Request $request, $id)
+    {
+        $item = MainModel::findOrFail($id);
+        $result = 0;
+        $status = $item->status;
+        if ($status == 1) {
+            $item->status = 0;
+            $result = 0;
+        } else {
+            $item->status = 1;
+            $result = 1;
+        }
+        $item->save();
+        return $result;
     }
 }

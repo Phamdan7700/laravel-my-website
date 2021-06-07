@@ -37,20 +37,7 @@
                     </div>
                     <div class="x_content">
                         <br />
-                        @if ($errors->any())
-                            <div style="font-size: 1.5rem" class="alert alert-danger alert-dismissible fade in zvn-alert  "
-                                role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                                        aria-hidden="true">×</span>
-                                </button>
-                                <strong><i class="fa fa-exclamation-triangle"></i> Xảy ra lỗi!</strong>
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
+                        
                         @include('alert.alert')
                         @yield('form')
                     </div>
@@ -65,8 +52,11 @@
     <script src="{{ asset(' asset/pnotify/dist/pnotify.js') }}"></script>
     <script src="{{ asset(' asset/pnotify/dist/pnotify.buttons.js') }}"></script>
     <script src="{{ asset(' asset/pnotify/dist/pnotify.nonblock.js') }}"></script>
+    <script src="{{ asset('pageAdmin/js/ckeditor/ckeditor.js') }}"></script>
+    <script src="{{ asset('pageAdmin/js/custom.js') }}"></script>
+
     <script>
-        CKEDITOR.replace('description');
+        CKEDITOR.replace('content');
 
     </script>
 @endsection

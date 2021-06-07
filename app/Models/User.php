@@ -43,18 +43,16 @@ class User extends Authenticatable
     ];
 
     public function categories() {
-        return $this->hasMany(Category::class);
+        return $this->hasMany(Category::class, 'created_by');
     }
 
     public function typeNews() {
-        return $this->hasMany(Type::class);
+        return $this->hasMany(Type::class, 'created_by');
     }
 
     public function posts() {
-        return $this->hasMany(Post::class);
+        return $this->hasMany(Post::class, 'created_by');
     }
 
-    public function comments() {
-        return $this->hasMany(Comment::class);
-    }
+    
 }

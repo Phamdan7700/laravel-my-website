@@ -4,6 +4,11 @@
     Thể Loại
 @endsection
 
+@php
+$view = 'category';
+@endphp
+
+
 @section('table-list')
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -39,26 +44,23 @@
                                             <td width="10%">{{ $item->name }}</td>
                                             <td>{{ $item->slug }}</td>
                                             <td>
-                                                @if ($item->status)
-                                                    <a style="width: 100px" href="/change-status-active/1" type="button"
-                                                        class="btn btn-round btn-success">Active </a>
-                                                @else
-                                                    <a style="width: 100px" href="/change-status-active/1" type="button"
-                                                        class="btn btn-round btn-warning">Inactive </a>
+                                                <span style="width: 100px" type="button" data-id="{{ $item->id }}"
+                                                    data-url="{{ route('admin.'.$view.'-change-status', $item->id) }}"
+                                                    class="status btn btn-round  {{ $item->status ? 'btn-success' : 'btn-warning' }}">
+                                                    {{ $item->status ? 'Active' : 'Inactive' }} </span>
 
-                                                @endif
                                             </td>
                                             <td>
-                                                <p><i class="fa fa-user"></i> {{ $item->createdBy }}</p>
-                                                <p><i class="fa fa-clock-o"></i> {{ $items->updatedBy }}</p>
+                                                <p><i class="fa fa-user"></i> {{ $item->createdBy['name'] ?? null }}</p>
+                                                <p><i class="fa fa-clock-o"></i> {{ $item->created_at }}</p>
                                             </td>
                                             <td>
-                                                <p><i class="fa fa-user"></i> {{ $item->updatedBy }}</p>
+                                                <p><i class="fa fa-user"></i> {{ $item->updatedBy['name'] ?? null }}</p>
                                                 <p><i class="fa fa-clock-o"></i> {{ $item->updated_at }}</p>
                                             </td>
                                             <td class="last">
                                                 <div class="zvn-box-btn-filter">
-                                                    <a href="{{ route('admin.category.edit', $item->id) }}" type="button"
+                                                    <a href="{{ route('admin.'.$view.'.edit', $item->id) }}" type="button"
                                                         class="btn btn-icon btn-success" data-toggle="tooltip"
                                                         data-placement="top" data-original-title="Edit">
                                                         <i class="fa fa-pencil"></i>
@@ -70,7 +72,7 @@
                                                         <i class=" fa fa-trash"></i>
                                                     </button>
                                                     <form id="form-delete-{{ $item->id }}"
-                                                        action="{{ route('admin.category.destroy', $item->id) }}"
+                                                        action="{{ route('admin.'.$view.'.destroy', $item->id) }}"
                                                         method="POST">
                                                         @method('DELETE')
                                                         @csrf
@@ -90,7 +92,7 @@
                                                                 <div class="modal-footer">
                                                                     <button type="button" class="btn btn-default"
                                                                         data-dismiss="modal">Close</button>
-                                                                    <a href="{{ route('admin.category.destroy', $item->id) }}"
+                                                                    <a href="{{ route('admin.'.$view.'.destroy', $item->id) }}"
                                                                         type="button" class="btn btn-danger"
                                                                         data-dismiss="modal"
                                                                         onclick="event.preventDefault();document.getElementById('form-delete-{{ $item->id }}').submit();">Xóa</a>

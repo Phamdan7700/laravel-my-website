@@ -4,6 +4,9 @@
     Bài Viết
 @endsection
 
+@php
+$viewName = 'post';
+@endphp
 @section('table-list')
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -19,47 +22,62 @@
                 </div>
                 <div class="x_content">
                     <div class="table-responsive">
-                        <table class="table table-striped jambo_table bulk_action">
+                        <table class="table table-striped jambo_table bulk_action ">
                             <thead>
                                 <tr class="headings">
                                     <th class="column-title">#</th>
-                                    <th class="column-title">Thể Loại</th>
-                                    <th class="column-title">Slug</th>
+                                    <th class="column-title">Tiêu Đề </th>
+                                    <th class="column-title">Thể Loại / Loại Tin</th>
+                                    <th class="column-title">Tóm Tắt</th>
+                                    <th class="column-title">Thumbnail</th>
+                                    <th class="column-title">Lượt Xem</th>
                                     <th class="column-title">Trạng thái</th>
+                                    <th class="column-title">Nổi Bật</th>
                                     <th class="column-title">Tạo mới</th>
                                     <th class="column-title">Chỉnh sửa</th>
                                     <th class="column-title">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody id="myTable">
+                     
                                 @isset($items)
                                     @foreach ($items as $item)
                                         <tr class="even pointer">
                                             <td class="">{{ $loop->iteration }}</td>
-                                            <td width="10%">{{ $item->name }}</td>
-                                            <td>{{ $item->slug }}</td>
+                                            <td width="10%">{{ $item->title }}</td>
+                                            <td>{{ $item->typeNews->category->name .' / '. $item->typeNews->name }}</td>
+                                            <td>{{ $item->summary }}</td>
+                                            <td width="5%"><img src="{{ $item->thumbnail }}" alt="admin" class="zvn-thumb">
+                                            </td>
+                                            <td>{{ $item->view }}</td>
                                             <td>
-                                                @if ($item->status)
-                                                    <a style="width: 100px" href="/change-status-active/1" type="button"
-                                                        class="btn btn-round btn-success">Active </a>
-                                                @else
-                                                    <a style="width: 100px" href="/change-status-active/1" type="button"
-                                                        class="btn btn-round btn-warning">Inactive </a>
+                                                <span style="width: 100px" type="button" data-id="{{ $item->id }}"
+                                                    data-url="{{ route('admin.post-change-status', $item->id) }}"
+                                                    class="status btn btn-round  {{ $item->status ? 'btn-success' : 'btn-warning' }}">
+                                                    {{ $item->status ? 'Active' : 'Inactive' }} </span>
 
-                                                @endif
                                             </td>
                                             <td>
-                                                <p><i class="fa fa-user"></i> {{ $item->name }}</p>
+                                                <span class="hightlight" data-id="{{ $item->id }}"
+                                                    data-url="{{ route('admin.change-hightlight', $item->id) }}"
+                                                    style="cursor: pointer; width: 100p; font-size: 2rem; text-align: center ">
+                                                    <i
+                                                        class="{{ $item->hightlight ? 'fa fa-star text-danger' : 'fa fa-star' }}"></i>
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <p><i class="fa fa-user"></i> {{ $item->createdBy['name'] ?? null }}</p>
                                                 <p><i class="fa fa-clock-o"></i> {{ $item->created_at }}</p>
                                             </td>
                                             <td>
-                                                <p><i class="fa fa-user"></i> {{ $item->name }}</p>
+                                                <p><i class="fa fa-user"></i> {{ $item->updatedBy['name'] ?? null }}</p>
                                                 <p><i class="fa fa-clock-o"></i> {{ $item->updated_at }}</p>
                                             </td>
                                             <td class="last">
                                                 <div class="zvn-box-btn-filter">
-                                                    <a href="{{ route('admin.category.edit', $item->id) }}" type="button"
-                                                        class="btn btn-icon btn-success" data-toggle="tooltip"
+                                                    <a href="{{ route('admin.' . $viewName . '.edit', $item->id) }}"
+                                                        type="button" class="btn btn-icon btn-success" data-toggle="tooltip"
                                                         data-placement="top" data-original-title="Edit">
                                                         <i class="fa fa-pencil"></i>
                                                     </a>
@@ -70,7 +88,7 @@
                                                         <i class=" fa fa-trash"></i>
                                                     </button>
                                                     <form id="form-delete-{{ $item->id }}"
-                                                        action="{{ route('admin.category.destroy', $item->id) }}"
+                                                        action="{{ route('admin.' . $viewName . '.destroy', $item->id) }}"
                                                         method="POST">
                                                         @method('DELETE')
                                                         @csrf
@@ -90,7 +108,7 @@
                                                                 <div class="modal-footer">
                                                                     <button type="button" class="btn btn-default"
                                                                         data-dismiss="modal">Close</button>
-                                                                    <a href="{{ route('admin.category.destroy', $item->id) }}"
+                                                                    <a href="{{ route('admin.' . $viewName . '.destroy', $item->id) }}"
                                                                         type="button" class="btn btn-danger"
                                                                         data-dismiss="modal"
                                                                         onclick="event.preventDefault();document.getElementById('form-delete-{{ $item->id }}').submit();">Xóa</a>
@@ -111,4 +129,5 @@
             </div>
         </div>
     </div>
+
 @endsection

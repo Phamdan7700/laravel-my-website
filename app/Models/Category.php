@@ -14,7 +14,7 @@ class Category extends Model
         'slug',
         'order',
         'status',
-        'create_by',
+        'created_by',
         'updated_by',
     ];
 
@@ -23,13 +23,18 @@ class Category extends Model
         return $this->hasMany(Type::class);
     }
 
+    public function posts()
+    {
+        return $this->hasManyThrough(Post::class, Type::class)->orderBy('created_at','desc');
+    }
+
     public function createdBy()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function updatedBy()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

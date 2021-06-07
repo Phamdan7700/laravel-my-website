@@ -19,14 +19,13 @@ class CreatePostsTable extends Migration
             $table->string('slug');
             $table->string('summary');
             $table->string('thumbnail');
-            $table->string('content');
-            $table->string('view');
-            $table->string('hightlight');
+            $table->text('content');
+            $table->unsignedInteger('view')->nullable();
+            $table->string('hightlight')->nullable();
             $table->string('status');
-            $table->foreignId('create_by')->constrained('users');
-            $table->foreignId('updated_by')->constrained('users');
+            $table->foreignId('created_by')->constrained('users');
+            $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->foreignId('type_id')->constrained();
-            $table->foreignId('user_id')->constrained();
             $table->timestamps();
         });
     }

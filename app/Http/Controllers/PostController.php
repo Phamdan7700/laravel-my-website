@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostRequest;
+use App\Http\Requests\StoreRequest;
+use App\Models\Category;
 use App\Models\Post as MainModel;
+use App\Models\Type;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
@@ -19,19 +24,21 @@ class PostController extends Controller
     protected $viewAdmin;
     protected $viewAdminForm;
     protected $viewPage;
+    protected $numPageAdmin;
 
     public function __construct()
     {
         $this->viewAdmin = 'admin.' . $this->viewName;
         $this->viewAdminForm = 'admin.' . $this->viewName . '-form';
         $this->viewPage = 'page' . $this->viewName;
+        $this->numPageAdmin = config('admin.num_page_admin');
     }
 
     public function index(Request $request)
     {
         $filter = $request->filter_status;
         $viewName = $this->viewName;
-        $items = MainModel::all();
+        $items = MainModel::paginate($this->numPageAdmin);
         $countAll = count($items);
         $countActive = count($items->where('status', '1'));
         $countInActive = count($items->where('status', '0'));
@@ -54,7 +61,8 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view($this->viewAdminForm);
+        $types = Type::all();
+        return view($this->viewAdminForm, compact('types'));
     }
 
     /**
@@ -63,19 +71,20 @@ class PostController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(PostRequest $request)
     {
-        $request->validate([
-            'name' => 'required|min:5|max:255',
-            'status' => 'required',
+        $items = MainModel::create([
+            'title' => $request->title,
+            'slug' => Str::of($request->title)->slug('-'),
+            'summary' => $request->summary,
+            'thumbnail' => $request->thumbnail,
+            'content' => $request->content,
+            'hightlight' => $request->hightlight,
+            'status' => $request->status,
+            'created_by' => Auth::user()->id,
+            'type_id' => $request->type,
         ]);
 
-        $items = MainModel::create([
-            'name' => $request->name,
-            'slug' => Str::of($request->name)->slug('-'),
-            'order' => '1',
-            'status' => $request->status,
-        ]);
         $items->save();
         return back()->with('success', 'Thêm thành công !!!');
     }
@@ -88,8 +97,8 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        $items = MainModel::findOrFail($id);
-        return view('index', compact('items'));
+        $singlePost = MainModel::findOrFail($id);
+        return view('page.post', compact('singlePost'));
     }
 
     /**
@@ -100,8 +109,9 @@ class PostController extends Controller
      */
     public function edit($id)
     {
+        $types = Type::all();
         $item = MainModel::findOrFail($id);
-        return view($this->viewAdminForm, compact('item'));
+        return view($this->viewAdminForm, compact('item', 'types'));
     }
 
     /**
@@ -111,11 +121,19 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(PostRequest $request, $id)
     {
+        
         $item = MainModel::findOrFail($id);
-        $item->name = $request->name;
+        $item->title = $request->title;
+        $item->slug = Str::of($request->title)->slug('-');
+        $item->summary = $request->summary;
+        $item->thumbnail = $request->thumbnail;
+        $item->content = $request->content;
+        $item->hightlight = $request->hightlight;
         $item->status = $request->status;
+        $item->updated_by = Auth::user()->id;
+        $item->type_id = $request->type;
         $item->save();
         return redirect()->route('admin.post.index')->with('success', 'Update succesfully!');
     }
@@ -130,10 +148,46 @@ class PostController extends Controller
     {
         $item = MainModel::find($id);
         try {
+            foreach ($item->comments as $comment) {
+                $comment->delete();
+            }
+
             $item->delete();
         } catch (\Throwable $error) {
             return back()->with('error', "Lỗi ! Không thể xóa");
         }
         return back()->with('success', 'Delete Succesfully');
+    }
+
+    public function changeHightlight(Request $request, $id)
+    {
+        $item = MainModel::findOrFail($id);
+        $result = 0;
+        $hightlight = $item->hightlight;
+        if ($hightlight == 1) {
+            $item->hightlight = 0;
+            $result = 1;
+        } else {
+            $item->hightlight = 1;
+            $result = 0;
+        }
+        $item->save();
+        return $result;
+    }
+
+    public function changeStatus(Request $request, $id)
+    {
+        $item = MainModel::findOrFail($id);
+        $result = 0;
+        $status = $item->status;
+        if ($status == 1) {
+            $item->status = 0;
+            $result = 0;
+        } else {
+            $item->status = 1;
+            $result = 1;
+        }
+        $item->save();
+        return $result;
     }
 }

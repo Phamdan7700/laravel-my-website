@@ -24,6 +24,8 @@
     <link href="{{ asset('pageadmin/css/custom.min.css') }}" rel="stylesheet">
     <!-- Custom Theme Style -->
     <link href="{{ asset('pageadmin/css/mycss.css') }}" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="{{ asset('pageadmin/js/jquery/dist/jquery.min.js') }}"></script>
     @yield('style')
 
 </head>

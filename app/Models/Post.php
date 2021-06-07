@@ -18,25 +18,26 @@ class Post extends Model
         'view',
         'hightlight',
         'status',
-        'create_by',
+        'created_by',
         'updated_by',
         'type_id',
-        'user_id',
+        
     ];
 
     public function typeNews() {
-        return $this->belongsTo(Type::class);
+        return $this->belongsTo(Type::class, 'type_id');
     }
+
 
     public function comments() {
         return $this->hasMany(Comment::class);
     }
 
     public function createdBy() {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'created_by');
     }
 
     public function updatedBy() {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'updated_by');
     }
 }

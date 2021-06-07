@@ -30,10 +30,9 @@ class PostFactory extends Factory
             'view' => $this->faker->numberBetween(),
             'hightlight' => $this->faker->boolean(),
             'status' => $this->faker->boolean(),
-            'create_by' => $this->faker->numberBetween(1, 10),
+            'created_by' => $this->faker->numberBetween(1, 10),
             'updated_by' => $this->faker->numberBetween(1, 10),
             'type_id' => $this->faker->numberBetween(1, 10),
-            'user_id' => $this->faker->numberBetween(1, 10),
         ];
     }
 }
