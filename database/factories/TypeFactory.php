@@ -22,11 +22,13 @@ class TypeFactory extends Factory
     public function definition()
     {
         return [
-        'name' =>$this->faker->text(20),
-        'slug' =>$this->faker->slug(),
-        'order' =>$this->faker->numberBetween(1, 10),
-        'status' =>$this->faker->boolean(),
-        'category_id' =>$this->faker->numberBetween(1, 10),
+            'name' => $this->faker->text(20),
+            'slug' => $this->faker->slug(),
+            'order' => $this->faker->numberBetween(1, 10),
+            'status' => $this->faker->boolean(),
+            'created_by' => $this->faker->numberBetween(1, 10),
+            'updated_by' => $this->faker->numberBetween(1, 10),
+            'category_id' => $this->faker->numberBetween(1, 10),
         ];
     }
 }

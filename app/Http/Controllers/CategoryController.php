@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CategoryRequest;
+use App\Models\Category as MainModel;
+use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -11,9 +16,36 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+
+
+    protected $viewName = 'category';
+    protected $viewAdmin;
+    protected $viewAdminForm;
+    protected $viewPage;
+    protected $numPageAdmin;
+    protected $categoryRepository;
+
+    public function __construct(CategoryRepositoryInterface $categoryRepository)
     {
-        //
+        $this->categoryRepository = $categoryRepository;
+        $this->viewAdmin = 'admin.' . $this->viewName;
+        $this->viewAdminForm = 'admin.' . $this->viewName . '-form';
+        $this->viewPage = 'page' . $this->viewName;
+        $this->numPageAdmin = config('admin.num_page_admin');
+    }
+
+    public function index(Request $request)
+    {
+        $viewName = $this->viewName;
+        $items = $this->categoryRepository->getAll();
+        $countAll = count($items);
+        $countActive = count($items->where('status', '1'));
+        $countInActive = count($items->where('status', '0'));
+
+        return view(
+            $this->viewAdmin,
+            compact(['items', 'viewName', 'countAll', 'countActive', 'countInActive'])
+        );
     }
 
     /**
@@ -23,7 +55,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view($this->viewAdminForm);
     }
 
     /**
@@ -32,9 +64,20 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        //
+
+        $items = $this->categoryRepository->create(
+            [
+                'name' => $request->name,
+                'slug' => Str::of($request->name)->slug('-'),
+                'order' => '1',
+                'status' => $request->status,
+                'created_by' =>  Auth::user()->id,
+            ]
+        );
+        $items->save();
+        return back()->with('success', 'Thêm thành công !!!');
     }
 
     /**
@@ -45,7 +88,8 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        //
+        $items = $this->categoryRepository->find($id);
+        return view('index', compact('items'));
     }
 
     /**
@@ -56,7 +100,8 @@ class CategoryController extends Controller
      */
     public function edit($id)
     {
-        //
+        $item = $this->categoryRepository->find($id);
+        return view($this->viewAdminForm, compact('item'));
     }
 
     /**
@@ -66,9 +111,16 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(CategoryRequest $request, $id)
     {
-        //
+        $this->categoryRepository->update($id, [
+            'name' => $request->name,
+            'slug' => Str::of($request->name)->slug('-'),
+            'status' => $request->status,
+            'updated_by' =>  Auth::user()->id,
+        ]);
+
+        return redirect()->route('admin.category.index')->with('success', 'Update succesfully!');
     }
 
     /**
@@ -79,6 +131,16 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            $this->categoryRepository->delete($id);
+        } catch (\Throwable $error) {
+            return back()->with('error', "Lỗi ! Không thể xóa");
+        }
+        return back()->with('success', 'Delete Succesfully');
+    }
+
+    public function changeStatus($id)
+    {
+        return  $this->categoryRepository->changeStatus($id);
     }
 }

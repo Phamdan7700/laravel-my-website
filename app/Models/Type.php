@@ -14,6 +14,8 @@ class Type extends Model
         'slug',
         'order',
         'status',
+        'created_by',
+        'updated_by',
         'category_id',
     ];
 
@@ -23,5 +25,12 @@ class Type extends Model
 
     public function posts() {
         return $this->hasMany(Post::class);
+    }
+    public function createdBy() {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy() {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

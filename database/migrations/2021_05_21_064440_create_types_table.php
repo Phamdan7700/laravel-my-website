@@ -19,6 +19,8 @@ class CreateTypesTable extends Migration
             $table->string('slug');
             $table->string('order');
             $table->string('status');
+            $table->foreignId('created_by')->constrained('users');
+            $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->foreignId('category_id')->constrained();
             $table->timestamps();
         });
