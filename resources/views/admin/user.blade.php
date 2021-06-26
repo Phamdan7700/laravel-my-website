@@ -1,7 +1,7 @@
 @extends('admin.main')
 
 @section('title')
-    User
+{{ __('dashboard.user') }}
 @endsection
 
 @php

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CategoryRequest;
-use App\Http\Requests\StoreRequest;
 use App\Models\Category as MainModel;
+use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -22,10 +22,12 @@ class CategoryController extends Controller
     protected $viewAdmin;
     protected $viewAdminForm;
     protected $viewPage;
-    protected $numPageAdmin ;
+    protected $numPageAdmin;
+    protected $categoryRepository;
 
-    public function __construct()
+    public function __construct(CategoryRepositoryInterface $categoryRepository)
     {
+        $this->categoryRepository = $categoryRepository;
         $this->viewAdmin = 'admin.' . $this->viewName;
         $this->viewAdminForm = 'admin.' . $this->viewName . '-form';
         $this->viewPage = 'page' . $this->viewName;
@@ -34,18 +36,12 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
-        $filter = $request->filter_status;
         $viewName = $this->viewName;
-        $items = MainModel::paginate($this->numPageAdmin);
+        $items = $this->categoryRepository->getAll();
         $countAll = count($items);
         $countActive = count($items->where('status', '1'));
         $countInActive = count($items->where('status', '0'));
-        if ($filter == 'active') {
-            $items = MainModel::whereIn('status', '1')->paginate(10);
-        }
-        if ($filter == 'inactive') {
-            $items = MainModel::whereIn('status', '0')->paginate(10);
-        }
+
         return view(
             $this->viewAdmin,
             compact(['items', 'viewName', 'countAll', 'countActive', 'countInActive'])
@@ -70,14 +66,16 @@ class CategoryController extends Controller
      */
     public function store(CategoryRequest $request)
     {
-      
-        $items = MainModel::create([
-            'name' => $request->name,
-            'slug' => Str::of($request->name)->slug('-'),
-            'order' => '1',
-            'status' => $request->status,
-            'created_by' =>  Auth::user()->id,
-        ]);
+
+        $items = $this->categoryRepository->create(
+            [
+                'name' => $request->name,
+                'slug' => Str::of($request->name)->slug('-'),
+                'order' => '1',
+                'status' => $request->status,
+                'created_by' =>  Auth::user()->id,
+            ]
+        );
         $items->save();
         return back()->with('success', 'Thêm thành công !!!');
     }
@@ -90,7 +88,7 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $items = MainModel::findOrFail($id);
+        $items = $this->categoryRepository->find($id);
         return view('index', compact('items'));
     }
 
@@ -102,7 +100,7 @@ class CategoryController extends Controller
      */
     public function edit($id)
     {
-        $item = MainModel::findOrFail($id);
+        $item = $this->categoryRepository->find($id);
         return view($this->viewAdminForm, compact('item'));
     }
 
@@ -115,12 +113,13 @@ class CategoryController extends Controller
      */
     public function update(CategoryRequest $request, $id)
     {
-        $item = MainModel::findOrFail($id);
-        $item->name = $request->name;
-        $item->slug = Str::of($request->name)->slug('-');
-        $item->status = $request->status;
-        $item->updated_by =  Auth::user()->id;
-        $item->save();
+        $this->categoryRepository->update($id, [
+            'name' => $request->name,
+            'slug' => Str::of($request->name)->slug('-'),
+            'status' => $request->status,
+            'updated_by' =>  Auth::user()->id,
+        ]);
+
         return redirect()->route('admin.category.index')->with('success', 'Update succesfully!');
     }
 
@@ -132,28 +131,16 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        $item = MainModel::find($id);
         try {
-            $item->delete();
+            $this->categoryRepository->delete($id);
         } catch (\Throwable $error) {
             return back()->with('error', "Lỗi ! Không thể xóa");
         }
         return back()->with('success', 'Delete Succesfully');
     }
 
-    public function changeStatus(Request $request, $id)
+    public function changeStatus($id)
     {
-        $item = MainModel::findOrFail($id);
-        $result = 0;
-        $status = $item->status;
-        if ($status == 1) {
-            $item->status = 0;
-            $result = 0;
-        } else {
-            $item->status = 1;
-            $result = 1;
-        }
-        $item->save();
-        return $result;
+        return  $this->categoryRepository->changeStatus($id);
     }
 }

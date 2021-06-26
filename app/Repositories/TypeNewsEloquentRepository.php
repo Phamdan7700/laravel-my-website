@@ -2,11 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Models\News;
+use App\Models\Type;
 use App\Repositories\Interfaces\TypeNewsRepositoryInterface;
 
 class TypeNewsEloquentRepository  extends EloquentRepository implements TypeNewsRepositoryInterface {
     public function getModel() {
-        return News::class;
+        return Type::class;
     }
 }

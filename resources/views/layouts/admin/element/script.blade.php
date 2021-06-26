@@ -69,7 +69,7 @@
                     "_token": "{{ csrf_token() }}",
                 },
                 success: function(result) {
-                    if (result == 1) {
+                    if (result) {
                         $(obj).addClass('btn-success');
                         $(obj).removeClass('btn-warning');
                         $(obj).html('Active');

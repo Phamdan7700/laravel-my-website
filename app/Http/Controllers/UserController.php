@@ -37,12 +37,12 @@ class UserController extends Controller
         $countAll = count($items);
         $countActive = count($items->where('status', '1'));
         $countInActive = count($items->where('status', '0'));
-        if ($filter == 'active') {
-            $items = $items->where('status', '1');
-        }
-        if ($filter == 'inactive') {
-            $items = $items->where('status', '0');
-        }
+        // if ($filter == 'active') {
+        //     $items = $items->where('status', '1');
+        // }
+        // if ($filter == 'inactive') {
+        //     $items = $items->where('status', '0');
+        // }
         return view(
             $this->viewAdmin,
             compact(['items', 'viewName', 'countAll', 'countActive', 'countInActive'])

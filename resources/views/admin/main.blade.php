@@ -7,7 +7,7 @@
 
     <div class="page-header zvn-page-header clearfix">
         <div class="zvn-page-header-title">
-            <h3>Danh sách
+            <h3>{{ __('dashboard.list') }}
                 @isset($viewName)
                     {{ strtoupper($viewName) }}
                 @endisset
@@ -16,7 +16,7 @@
         @if ($viewName != 'user')
             <div class="zvn-add-new pull-right">
                 <a href="{{ route('admin.' . $viewName . '.create') }}" class="btn btn-success"><i
-                        class="fa fa-plus-circle"></i> Thêm mới</a>
+                        class="fa fa-plus-circle"></i>  {{ __('dashboard.add') }}</a>
             </div>
         @endif
     </div>
@@ -24,7 +24,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Bộ lọc</h2>
+                    <h2>{{ __('dashboard.filter') }}</h2>
                     <ul class="nav navbar-right panel_toolbox">
                         <li class="pull-right"><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                         </li>
@@ -66,9 +66,8 @@
                                 <input type="text" class="form-control" name="search_value" value="" id="myInput">
                                 <span class="input-group-btn">
                                     <button id="btn-clear" type="button" class="btn btn-success"
-                                        style="margin-right: 0px">Xóa tìm kiếm</button>
-                                    <button id="btn-search" type="button" class="btn btn-primary">Tìm
-                                        kiếm</button>
+                                        style="margin-right: 0px">{{ __('dashboard.delete') }}</button> 
+                                    <button id="btn-search" type="button" class="btn btn-primary">{{ __('dashboard.search') }}</button>
                                 </span>
                                 <input type="hidden" name="search_field" value="all">
                             </div>
@@ -86,9 +85,25 @@
         </div>
     </div>
     <!--box-lists-->
-@section('table-list')
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{ __('dashboard.list') }}</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li class="pull-right"><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
 
-@show
+                </div>
+            @section('table-list')
+
+            @show
+        </div>
+    </div>
+</div>
+
 <!--end-box-lists-->
 <!--box-pagination-->
 <div class="row">
@@ -106,9 +121,10 @@
             <div class="x_content">
                 <div class="row">
                     <div class="col-md-6">
-                        <p class="m-b-0">Số phần tử trên trang: <b> {{$items->currentPage()}}</b> trên <span
-                                class="label label-success label-pagination"> {{$items->lastPage()}} trang</span></p>
-                        <p class="m-b-0">Hiển thị<b> {{$items->firstItem()}} </b> đến<b> {{$items->lastItem()}}</b> trên<b> {{$items->total()}}</b> Phần tử</p>
+                        <p class="m-b-0">Số phần tử trên trang: <b> {{ $items->currentPage() }}</b> trên <span
+                                class="label label-success label-pagination"> {{ $items->lastPage() }} trang</span></p>
+                        <p class="m-b-0">Hiển thị<b> {{ $items->firstItem() }} </b> đến<b> {{ $items->lastItem() }}</b>
+                            trên<b> {{ $items->total() }}</b> Phần tử</p>
                     </div>
                     <div class="col-md-6">
                         <nav aria-label="Page navigation example">

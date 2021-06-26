@@ -10,7 +10,7 @@
             <img src="{{ asset('pageadmin/img/img.jpg') }}" alt="..." class="img-circle profile_img">
         </div>
         <div class="profile_info">
-            <span>Welcome,</span>
+            <span>{{__('dashboard.welcome')}},</span>
             <h2>{{ Auth::user()->name }}</h2>
         </div>
     </div>
@@ -22,11 +22,11 @@
             <h3>General</h3>
             <ul class="nav side-menu">
                 {{-- <li><a href="{{ route('admin.dashboard') }}"><i class="fa fa-home"></i> Home</a></li> --}}
-                <li><a href="{{ route('admin.user.index') }}"><i class="fa fa-user"></i> User</a></li>
-                <li><a href="{{ route('admin.category.index') }}"><i class="fa fa fa-building-o"></i> Category</a>
+                <li><a href="{{ route('admin.user.index') }}"><i class="fa fa-user"></i> {{ __("dashboard.user")}}</a></li>
+                <li><a href="{{ route('admin.category.index') }}"><i class="fa fa fa-building-o"></i> {{ __("dashboard.category")}}</a>
                 </li>
-                <li><a href="{{ route('admin.type.index') }}"><i class="fa fa-sliders"></i> Type News</a></li>
-                <li><a href="{{ route('admin.post.index') }}"><i class="fa fa-newspaper-o"></i> Post</a></li>
+                <li><a href="{{ route('admin.type.index') }}"><i class="fa fa-sliders"></i>{{ __("dashboard.type")}}</a></li>
+                <li><a href="{{ route('admin.post.index') }}"><i class="fa fa-newspaper-o"></i> {{ __("dashboard.post")}}</a></li>
             </ul>
         </div>
     </div>
